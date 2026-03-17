@@ -10,9 +10,9 @@
 [![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?style=flat-square&logo=mongodb)](https://mongodb.com)
 [![License](https://img.shields.io/badge/License-MIT-blue?style=flat-square)](LICENSE)
 
-**Built for National Hackathon 2025** · Full-Stack · Real-Time · AI/ML
+**Built for CodeBidz 2026** · Full-Stack · Real-Time · AI/ML
 
-[🌐 Live Demo](https://bidsphere.vercel.app) · [📡 API](https://bidsphere-server.onrender.com/health) · [🤖 AI Docs](https://bidsphere-ai.onrender.com/docs)
+[🌐 Live Demo](https://bid-sphere-green.vercel.app) · [📡 API](https://bidsphere-server.onrender.com/health) · [🤖 AI Docs](https://bidsphere-ai.onrender.com/docs)
 
 </div>
 
