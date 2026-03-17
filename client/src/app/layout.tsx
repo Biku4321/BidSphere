@@ -1,28 +1,30 @@
-import type { Metadata } from 'next';
-import { Inter, JetBrains_Mono } from 'next/font/google';
-import './globals.css';
-import { Navbar } from '@/components/Navbar';
-import { Toaster } from '@/components/ui/Toaster';
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
+import './globals.css'
+import { Footer } from '@/components/Footer'
+import { Navbar } from '@/components/Navbar'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const mono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-mono' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'BidSphere — Intelligent Real-Time Auctions',
   description: 'AI-powered live auction platform with real-time bidding, fraud detection, and smart strategy.',
-  keywords: ['auction', 'bidding', 'real-time', 'AI', 'live auction'],
-};
+}
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${mono.variable} font-sans bg-zinc-950 text-white min-h-screen`}>
+    <html lang="en" className={inter.variable}>
+      <body className="bg-zinc-950 text-white min-h-screen font-sans antialiased flex flex-col">
         <Navbar />
-        <main className="min-h-[calc(100vh-64px)]">
+        <main className="flex-1">
           {children}
         </main>
-        <Toaster />
+        <Footer />
       </body>
     </html>
-  );
+  )
 }

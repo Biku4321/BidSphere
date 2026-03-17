@@ -19,70 +19,87 @@ const walletRoutes = require('./src/routes/wallet.routes');
 const adminRoutes = require('./src/routes/admin.routes');
 const aiRoutes = require('./src/routes/ai.routes');
 
-const app = express();
+const app    = express();
 const server = http.createServer(app);
 
 // ─── Socket.IO ───────────────────────────────────────────
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: '*',
     methods: ['GET', 'POST'],
     credentials: true,
   },
 });
-
-// Make io accessible in routes
 app.set('io', io);
 
 // ─── Middleware ───────────────────────────────────────────
-app.use(helmet());
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
-  credentials: true,
-}));
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: '*', credentials: true }));
 app.use(morgan('dev'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Rate limiting
+// ─── Rate limiting — relaxed for development ─────────────
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 200,
+  windowMs: 15 * 60 * 1000,  // 15 minutes
+  max: 2000,                  // 2000 requests per 15 min (was 200)
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for localhost in dev
+    const ip = req.ip || '';
+    return ip === '::1' || ip === '127.0.0.1' || ip.includes('localhost');
+  },
   message: { error: 'Too many requests, please try again later.' },
 });
 app.use('/api/', limiter);
 
-// Stricter limit for bid placement
+// Bid limiter — relaxed
 const bidLimiter = rateLimit({
-  windowMs: 1000,     // 1 second
-  max: 5,
-  message: { error: 'Bid rate limit exceeded.' },
+  windowMs: 5000,   // 5 seconds window (was 1 second)
+  max: 20,          // 20 bids per 5 sec (was 5 per 1 sec)
+  skip: (req) => {
+    const ip = req.ip || '';
+    return ip === '::1' || ip === '127.0.0.1';
+  },
+  message: { error: 'Bid rate limit exceeded. Please wait a moment.' },
 });
 app.use('/api/bids', bidLimiter);
 
-// ─── Routes ───────────────────────────────────────────────
-app.use('/api/auth', authRoutes);
-app.use('/api/auctions', auctionRoutes);
-app.use('/api/bids', bidRoutes);
-app.use('/api/wallet', walletRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/ai', aiRoutes);
+// AI routes — very relaxed (predictions refresh often)
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 500,
+  skip: (req) => {
+    const ip = req.ip || '';
+    return ip === '::1' || ip === '127.0.0.1';
+  },
+});
+app.use('/api/ai', aiLimiter);
 
+// ─── Routes ───────────────────────────────────────────────
+app.use('/api/auth',     authRoutes);
+app.use('/api/auctions', auctionRoutes);
+app.use('/api/bids',     bidRoutes);
+app.use('/api/wallet',   walletRoutes);
+app.use('/api/admin',    adminRoutes);
+app.use('/api/ai',       aiRoutes);
 
 // Health check
-app.get('/health', (req, res) => res.json({ status: 'OK', timestamp: new Date().toISOString() }));
+app.get('/health', (req, res) => res.json({
+  status: 'OK',
+  timestamp: new Date().toISOString(),
+  uptime: Math.floor(process.uptime()) + 's',
+}));
 
-// 404 handler
+// 404
 app.use((req, res) => res.status(404).json({ error: 'Route not found' }));
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
-  });
+  console.error('Global error:', err.stack);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
-// app.use ke baad, routes se pehle
 
 // ─── Boot ─────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
@@ -95,10 +112,9 @@ const start = async () => {
   server.listen(PORT, () => {
     console.log(`\n🚀 BidSphere Server running on port ${PORT}`);
     console.log(`📡 Socket.IO ready`);
-    console.log(`🌍 Environment: ${process.env.NODE_ENV}\n`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
+    console.log(`⚡ Rate limiting: RELAXED for development\n`);
   });
 };
-process.on('unhandledRejection', (err) => {
-  console.error('UNHANDLED:', err.message);
-});
+
 start();

@@ -69,7 +69,7 @@ export default function HomePage() {
             <ArrowRight size={16} />
           </Link>
           <Link
-            href="/auth/register"
+            href="/auth/login"
             className="flex items-center gap-2 bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm"
           >
             Get Started Free
@@ -114,7 +114,7 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold text-white mb-4">Ready to bid smarter?</h2>
           <p className="text-zinc-400 mb-8">Get 100 free credits when you sign up today.</p>
           <Link
-            href="/auth/register"
+            href="/auth/login"
             className="inline-flex items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-8 py-3.5 rounded-xl transition-colors"
           >
             Create Free Account

@@ -1,12 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import RedirectResponse
 from routers import predict, fraud, strategy
-import uvicorn
 
 app = FastAPI(
     title="BidSphere AI Service",
     description="Price prediction, fraud detection, and bidding strategy APIs",
     version="1.0.0",
+    docs_url="/docs",
+    redoc_url="/redoc",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(
@@ -16,20 +19,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(predict.router, prefix="/predict", tags=["Price Prediction"])
-app.include_router(fraud.router, prefix="/fraud", tags=["Fraud Detection"])
+app.include_router(predict.router,  prefix="/predict",  tags=["Price Prediction"])
+app.include_router(fraud.router,    prefix="/fraud",    tags=["Fraud Detection"])
 app.include_router(strategy.router, prefix="/strategy", tags=["Bidding Strategy"])
+
+
+@app.get("/", include_in_schema=False)
+def root():
+    # Auto redirect to docs
+    return RedirectResponse(url="/docs")
 
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "BidSphere AI"}
-
-
-@app.get("/")
-def root():
-    return {"message": "BidSphere AI Service v1.0", "docs": "/docs"}
-
-
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    return {"status": "ok", "service": "BidSphere AI", "version": "1.0.0"}
