@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+:root {
+  --orange: #f97316;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: #09090b;
+  color: #ffffff;
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+.auction-card:hover {
+  box-shadow: 0 0 0 1px rgba(249,115,22,0.2), 0 8px 24px rgba(249,115,22,0.08);
+}
+
+.live-dot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.live-dot::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: livePulse 1.4s infinite;
+  flex-shrink: 0;
+}
+
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.bid-flash { animation: bidFlash 0.6s ease-out; }
+@keyframes bidFlash {
+  0%   { background-color: rgba(249,115,22,0.2); }
+  100% { background-color: transparent; }
+}
+
+.timer-urgent  { color: #ef4444; }
+.timer-warning { color: #f97316; }
+.timer-normal  { color: #22c55e; }
+
+.glass {
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.rank-1 { color: #fbbf24; }
+.rank-2 { color: #94a3b8; }
+.rank-3 { color: #b45309; }
